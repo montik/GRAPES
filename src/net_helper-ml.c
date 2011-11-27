@@ -357,6 +357,32 @@ static void recv_data_cb(char *buffer, int buflen, unsigned char msgtype, recv_p
 //	event_base_loopbreak(base);
 }
 
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+ * This function retrieve the RTT from monl for the specified socket
+ *
+ * *socket: pointer to the socketID whose RTT will be returnet
+ *
+ */
+double get_socket_rtt (socketID_handle socket)
+{
+  /*look for nodeID corresponding to socket*/
+  int i;
+  double rtt;
+  nodeID *node;
+  for (i=0; i<lookup_curr; i++){
+    node = lookup_array[i];
+    if (node != NULL){
+      if (!mlCompareSocketIDs(node->addr, socket) )
+        break;
+    }
+  }
+  if (i == lookup_curr){
+    printf ("The indicated socketID can't be found\n");
+  }
+  
+  rtt = monRetrieveResult(node->mhs[1], WIN_AVG);
+  return rtt;
+}  
 
 struct nodeID *net_helper_init(const char *IPaddr, int port, const char *config) {
 
@@ -430,6 +456,7 @@ struct nodeID *net_helper_init(const char *IPaddr, int port, const char *config)
 		free(me);
 		return NULL;
 	}
+  mlRegisterGetRtt(get_socket_rtt);
 
 	mlSetVerbosity(verbosity);
 
