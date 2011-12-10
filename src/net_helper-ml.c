@@ -378,6 +378,7 @@ double get_socket_rtt (socketID_handle socket)
   }
   if (i == lookup_curr){
     printf ("The indicated socketID can't be found\n");
+    return -1;
   }
   
   rtt = monRetrieveResult(node->mhs[1], WIN_AVG);
